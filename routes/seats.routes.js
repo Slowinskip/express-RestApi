@@ -17,14 +17,16 @@ router.route('/seats/random').get((req, res) => {
 });
 
 router.route('/seats').post((req, res) => {
-  const { author, text } = req.body;
+  const { day, seat, client, email } = req.body;
   const id = uuid();
 
   const newseats = {
     id: id,
-    author: author,
-    text: text,
-  };
+    day: day,
+    seat: seat,
+    client: client,
+    email: email,
+    };
 
   db.seats.push(newseats);
   res.json({ message: 'ok' });
@@ -34,15 +36,27 @@ router.route('/seats/:id').put((req, res) => {
   const id = req.params.id;
   const findseats = db.seats.find((data) => data.id == id);
   const index = db.seats.indexOf(findseats);
-  const { author, text } = req.body;
+  const { day, seat, client, email } = req.body;
   const changeseats = {
     id: id,
-    author: author,
-    text: text,
+    day: day,
+    seat: seat,
+    client: client,
+    email: email, 
   };
+  if (
+    !db.seats.some(
+      (seat) => seat.day == newSeat.day && seat.seat == newSeat.seat
+    )
+  ) {
+    db.seats.push(newSeat);
+    res.json({ message: 'ok' });
+  } else {
+    res.json({ message: 'The slot is already taken...' });
+    res.status(409).json({ message: 'The slot is already taken...' });
+  }
 
-  db.seats[index] = changeseats;
-  res.json({ message: 'ok' });
+  
 });
 
 router.route('/seats/:id').delete((req, res) => {
