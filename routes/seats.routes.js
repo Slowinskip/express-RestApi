@@ -1,5 +1,5 @@
 const express = require('express');
-const uuidv4 = require('uuid');
+const uuid = require('uuidv4');
 const db = require('../db.js');
 
 const router = express.Router();
@@ -18,7 +18,7 @@ router.route('/seats/random').get((req, res) => {
 
 router.route('/seats').post((req, res) => {
   const { author, text } = req.body;
-  const id = uuidv4();
+  const id = uuid();
 
   const newseats = {
     id: id,
