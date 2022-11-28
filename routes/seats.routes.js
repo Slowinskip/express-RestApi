@@ -1,5 +1,5 @@
 const express = require('express');
-const uuid = require('uuidv4');
+const uuid = require('uuid').v4;
 const db = require('../db.js');
 
 const router = express.Router();
@@ -50,6 +50,7 @@ router.route('/seats/:id').put((req, res) => {
     )
   ) {
     db.seats.push(newSeat);
+    req.io.emit('seatsUpdated', db.seats);
     res.json({ message: 'ok' });
   } else {
     res.json({ message: 'The slot is already taken...' });
