@@ -1,6 +1,4 @@
 const express = require('express');
-const uuid = require('uuid').v4;
-const db = require('../db.js');
 const Seats = require('../models/seats.model');
 
 const router = express.Router();
