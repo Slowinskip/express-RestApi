@@ -1,71 +1,78 @@
 const express = require('express');
 const uuid = require('uuid').v4;
 const db = require('../db.js');
+const Seats = require('../models/seats.model');
 
 const router = express.Router();
 
-router.route('/seats').get((req, res) => {
-  res.json(db.seats);
+router.route('/seats').get(async(req, res) => {
+  try {
+    res.json(await Seats.find({}));
+  } catch (err) {
+    res.status(500).json({ message: err });
+  }});
+
+router.route('/seats/:id').get(async(req, res) => {
+  try {
+    const dep = await Seats.findById(req.params.id);
+    if(!dep) res.status(404).json({ message: 'Not found' });
+    else res.json(dep);
+  }
+  catch(err) {
+    res.status(500).json({ message: err });
+  }});
+
+router.route('/seats/random').get(async(req, res) => {
+  try {
+    const count = await Seats.countDocuments();
+    const rand = Math.floor(Math.random() * count);
+    const conc = await Seats.findOne().skip(rand);
+    if (!conc) res.status(404).json({ message: 'Not found' });
+    else res.json(conc);
+  } catch (err) {
+    res.status(500).json({ message: 'OK' });
+  }});
+
+router.route('/seats').post(async(req, res) => {
+  try {
+    const { day, seat, client, email } = req.body;
+    const newSeats = new Seats({ seat:seat, client:client, email: email, day: day});
+    await newSeats.save();
+    res.json({ message: 'OK' });
+  } catch (err) {
+    res.status(500).json({ message: err });
+  }
 });
 
-router.route('/seats/:id').get((req, res) => {
-  res.json(db.seats.find((data) => data.id == req.params.id));
-});
-
-router.route('/seats/random').get((req, res) => {
-  res.json(db.seats[Math.floor(Math.random() * db.seats.length)]);
-});
-
-router.route('/seats').post((req, res) => {
+router.route('/seats/:id').put(async(req, res) => {
   const { day, seat, client, email } = req.body;
-  const id = uuid();
 
-  const newseats = {
-    id: id,
-    day: day,
-    seat: seat,
-    client: client,
-    email: email,
-    };
-
-  db.seats.push(newseats);
-  res.json({ message: 'ok' });
-});
-
-router.route('/seats/:id').put((req, res) => {
-  const id = req.params.id;
-  const findseats = db.seats.find((data) => data.id == id);
-  const index = db.seats.indexOf(findseats);
-  const { day, seat, client, email } = req.body;
-  const changeseats = {
-    id: id,
-    day: day,
-    seat: seat,
-    client: client,
-    email: email, 
-  };
-  if (
-    !db.seats.some(
-      (seat) => seat.day == newSeat.day && seat.seat == newSeat.seat
-    )
-  ) {
-    db.seats.push(newSeat);
-    req.io.emit('seatsUpdated', db.seats);
-    res.json({ message: 'ok' });
-  } else {
-    res.json({ message: 'The slot is already taken...' });
-    res.status(409).json({ message: 'The slot is already taken...' });
+  try {
+    const dep = await Seats.findById(req.params.id);
+    if(dep) {
+      await Seats.updateOne({ _id: req.params.id }, { $set: { seat:seat, client:client, email: email, day: day}});
+      res.json({ message: 'OK' });
+    }
+    else res.status(404).json({ message: 'Not found...' });
+  }
+  catch(err) {
+    res.status(500).json({ message: err });
   }
 
   
 });
 
-router.route('/seats/:id').delete((req, res) => {
-  const element = db.seats.find((data) => data.id == req.params.id);
-  const index = db.seats.indexOf(element);
-
-  db.seats.splice(index, 1);
-  res.json({ message: 'ok' });
-});
+router.route('/seats/:id').delete(async(req, res) => {
+  try {
+    const dep = await Seats.findById(req.params.id);
+    if(dep) {
+      await Seats.deleteOne({ _id: req.params.id });
+      res.json(await Seats.find());
+    }
+    else res.status(404).json({ message: 'Not found...' });
+  }
+  catch(err) {
+    res.status(500).json({ message: err });
+  }});
 
 module.exports = router;
