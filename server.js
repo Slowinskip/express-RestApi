@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
   console.log('New socket');
 });
 
-mongoose.connect('mongodb://localhost:27017/Festival', { useNewUrlParser: true });
+mongoose.connect('mongodb+srv://patryk_slowinski:DaciaSandero123@cluster0.iqjsj6s.mongodb.net/festical');
 const db = mongoose.connection;
 
 db.once('open', () => {
