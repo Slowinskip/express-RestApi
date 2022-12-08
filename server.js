@@ -9,6 +9,7 @@ const app = express();
 const testimonials = require('./routes/testimonials.routes.js');
 const concerts = require('./routes/concerts.routes.js');
 const seats = require('./routes/seats.routes.js');
+const workshops = require('./routes/workshop.routes.js');
 
 app.use((req, res, next) => {
   req.io = io;
@@ -23,6 +24,8 @@ app.use(express.static(path.join(__dirname, '/client/build')));
 app.use('/api', testimonials);
 app.use('/api', concerts);
 app.use('/api', seats);
+app.use('/api', workshops);
+
 
 app.use(express.static(path.join(__dirname, '/client/build')));
 
