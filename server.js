@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const socket = require('socket.io');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
@@ -43,11 +45,14 @@ const server = app.listen(process.env.PORT || 8000, () => {
 
 const io = socket(server);
 
+
 io.on('connection', (socket) => {
   console.log('New socket');
 });
 
-mongoose.connect('mongodb+srv://patryk_slowinski:DaciaSandero123@cluster0.iqjsj6s.mongodb.net/festical');
+const password = process.env['process.env.password']
+
+mongoose.connect('mongodb+srv://patryk_slowinski:${password}@cluster0.iqjsj6s.mongodb.net/festical');
 const db = mongoose.connection;
 
 db.once('open', () => {
